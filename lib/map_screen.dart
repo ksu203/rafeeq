@@ -22,11 +22,7 @@ class _MapScreenState extends State<MapScreen> {
 
   Map<String, dynamic> _weather = {
     'temp': '--',
-    'description': 'جاري التحميل...',
     'icon': '🌤️',
-    'humidity': '--',
-    'wind': '--',
-    'city': 'الرياض',
   };
 
   bool _isTraveling = false;
@@ -187,17 +183,9 @@ class _MapScreenState extends State<MapScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Row(
                     children: [
-                      _Tab(
-                        label: 'نفس اتجاهي (${same.length})',
-                        active: true,
-                        color: const Color(0xFF3ecf8e),
-                      ),
+                      _Tab(label: 'نفس اتجاهي (${same.length})', active: true, color: const Color(0xFF3ecf8e)),
                       const SizedBox(width: 8),
-                      _Tab(
-                        label: 'عكس الاتجاه (${opposite.length})',
-                        active: false,
-                        color: const Color(0xFFE24B4A),
-                      ),
+                      _Tab(label: 'عكس الاتجاه (${opposite.length})', active: false, color: const Color(0xFFE24B4A)),
                     ],
                   ),
                 ),
@@ -227,14 +215,8 @@ class _MapScreenState extends State<MapScreen> {
                       if (opposite.isNotEmpty) ...[
                         const Padding(
                           padding: EdgeInsets.symmetric(vertical: 8),
-                          child: Text(
-                            'عكس الاتجاه',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFFE24B4A),
-                            ),
-                          ),
+                          child: Text('عكس الاتجاه',
+                              style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFFE24B4A))),
                         ),
                         ...opposite.map((doc) {
                           final data = doc.data() as Map<String, dynamic>;
@@ -278,16 +260,30 @@ class _MapScreenState extends State<MapScreen> {
             List<Marker> markers = [
               Marker(
                 point: _myLocation,
-                width: 44,
-                height: 44,
+                width: 52,
+                height: 52,
                 child: Container(
                   decoration: BoxDecoration(
                     color: const Color(0xFF0d1117),
                     shape: BoxShape.circle,
-                    border: Border.all(color: const Color(0xFF3ecf8e), width: 3),
+                    border: Border.all(color: const Color(0xFF00D4AA).withOpacity(0.7), width: 3),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF00D4AA).withOpacity(0.08),
+                        blurRadius: 16,
+                        spreadRadius: 8,
+                      ),
+                    ],
                   ),
-                  child: const Center(
-                    child: Icon(Icons.person, color: Colors.white, size: 20),
+                  child: Center(
+                    child: Container(
+                      width: 20,
+                      height: 20,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF00D4AA).withOpacity(0.85),
+                        shape: BoxShape.circle,
+                      ),
+                    ),
                   ),
                 ),
               ),
@@ -303,46 +299,21 @@ class _MapScreenState extends State<MapScreen> {
                   height: 44,
                   child: GestureDetector(
                     onTap: () => _showTravelerCard(data, type),
-                    child: Stack(
-                      children: [
-                        Container(
-                          decoration: BoxDecoration(
-                            color: color,
-                            shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white, width: 2),
-                          ),
-                          child: Center(
-                            child: Text(
-                              data['avatar'] ?? '؟',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 14,
-                              ),
-                            ),
-                          ),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: color.withOpacity(0.85),
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white.withOpacity(0.7), width: 2.5),
+                        boxShadow: [
+                          BoxShadow(color: Colors.black.withOpacity(0.15), blurRadius: 8),
+                        ],
+                      ),
+                      child: Center(
+                        child: Text(
+                          data['avatar'] ?? '؟',
+                          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
                         ),
-                        Positioned(
-                          bottom: 0,
-                          left: 0,
-                          right: 0,
-                          child: Center(
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 3, vertical: 1),
-                              decoration: BoxDecoration(
-                                color: color,
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              child: Text(
-                                type == 'ahead' ? '↑' : type == 'behind' ? '↑' : '↓',
-                                style: const TextStyle(
-                                    color: Colors.white, fontSize: 8),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
                   ),
                 );
@@ -367,55 +338,110 @@ class _MapScreenState extends State<MapScreen> {
                     MarkerLayer(markers: markers),
                   ],
                 ),
+
+                // ── شريط علوي محسّن ──
                 Positioned(
-                  top: 0,
-                  left: 0,
-                  right: 0,
+                  top: 0, left: 0, right: 0,
                   child: Container(
                     padding: EdgeInsets.only(
                       top: MediaQuery.of(context).padding.top + 8,
-                      bottom: 10,
+                      bottom: 12,
                       left: 12,
                       right: 12,
                     ),
-                    color: const Color(0xFF0d1117),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF0d1117),
+                      border: Border(
+                        bottom: BorderSide(color: Colors.white.withOpacity(0.06)),
+                      ),
+                    ),
                     child: Row(
                       children: [
+                        // أيقونة التطبيق
+                        Container(
+                          width: 36,
+                          height: 36,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF00D4AA).withOpacity(0.08),
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: const Color(0xFF00D4AA).withOpacity(0.15)),
+                          ),
+                          child: Center(
+                            child: Container(
+                              width: 18,
+                              height: 18,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF00D4AA).withOpacity(0.9),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text('رفيق 🛣️',
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold)),
-                              Text(
-                                _isTraveling ? '🟢 أنت مسافر الآن · نحو جدة' : 'طريق الرياض ← جدة',
-                                style: const TextStyle(color: Colors.white60, fontSize: 10),
+                              const Text('رفيق',
+                                  style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600)),
+                              Row(
+                                children: [
+                                  Container(
+                                    width: 6, height: 6,
+                                    decoration: BoxDecoration(
+                                      color: _isTraveling
+                                          ? const Color(0xFF00D4AA).withOpacity(0.85)
+                                          : Colors.white38,
+                                      shape: BoxShape.circle,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    _isTraveling ? 'أنت مسافر الآن · نحو جدة' : 'طريق الرياض ← جدة',
+                                    style: TextStyle(
+                                      color: _isTraveling
+                                          ? const Color(0xFF00D4AA).withOpacity(0.85)
+                                          : Colors.white38,
+                                      fontSize: 11,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
                         ),
                         if (!_loadingWeather) ...[
-                          Text(_weather['icon'], style: const TextStyle(fontSize: 16)),
-                          const SizedBox(width: 4),
-                          Text('${_weather['temp']}°م',
-                              style: const TextStyle(color: Colors.white, fontSize: 12)),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.05),
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(color: Colors.white.withOpacity(0.08)),
+                            ),
+                            child: Row(
+                              children: [
+                                Text(_weather['icon'] ?? '🌤️', style: const TextStyle(fontSize: 14)),
+                                const SizedBox(width: 4),
+                                Text('${_weather['temp']}°',
+                                    style: TextStyle(color: Colors.white.withOpacity(0.85), fontSize: 13, fontWeight: FontWeight.w500)),
+                              ],
+                            ),
+                          ),
                           const SizedBox(width: 8),
                         ],
                         GestureDetector(
                           onTap: _toggleTravel,
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
                             decoration: BoxDecoration(
-                              color: _isTraveling ? const Color(0xFFE24B4A) : const Color(0xFF3ecf8e),
+                              color: _isTraveling
+                                  ? const Color(0xFFE24B4A).withOpacity(0.92)
+                                  : const Color(0xFF3ecf8e).withOpacity(0.92),
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Text(
                               _isTraveling ? 'إيقاف' : 'سافر الآن',
-                              style: const TextStyle(
-                                  color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                              style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600),
                             ),
                           ),
                         ),
@@ -423,41 +449,37 @@ class _MapScreenState extends State<MapScreen> {
                     ),
                   ),
                 ),
+
+                // ── عداد المسافرين ──
                 Positioned(
                   top: MediaQuery.of(context).padding.top + 68,
                   right: 12,
                   child: GestureDetector(
                     onTap: () => _showTravelersList(otherDocs),
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: Colors.white.withOpacity(0.92),
                         borderRadius: BorderRadius.circular(20),
                         boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.15),
-                            blurRadius: 6,
-                          ),
+                          BoxShadow(color: Colors.black.withOpacity(0.12), blurRadius: 8),
                         ],
                       ),
                       child: Row(
                         children: [
-                          const Icon(Icons.people, size: 14, color: Color(0xFF0d1117)),
+                          Icon(Icons.people, size: 14, color: const Color(0xFF0d1117).withOpacity(0.7)),
                           const SizedBox(width: 4),
-                          Text(
-                            '${otherDocs.length} مسافر',
-                            style: const TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF0d1117)),
-                          ),
+                          Text('${otherDocs.length} مسافر',
+                              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: const Color(0xFF0d1117).withOpacity(0.85))),
                           const SizedBox(width: 2),
-                          const Icon(Icons.keyboard_arrow_up, size: 14, color: Colors.grey),
+                          Icon(Icons.keyboard_arrow_up, size: 14, color: Colors.grey.withOpacity(0.7)),
                         ],
                       ),
                     ),
                   ),
                 ),
+
+                // ── زر التمركز ──
                 Positioned(
                   bottom: 90,
                   left: 12,
@@ -467,19 +489,18 @@ class _MapScreenState extends State<MapScreen> {
                       width: 40,
                       height: 40,
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: Colors.white.withOpacity(0.92),
                         shape: BoxShape.circle,
                         boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.15),
-                            blurRadius: 6,
-                          ),
+                          BoxShadow(color: Colors.black.withOpacity(0.12), blurRadius: 8),
                         ],
                       ),
-                      child: const Icon(Icons.my_location, color: Color(0xFF0d1117), size: 20),
+                      child: Icon(Icons.my_location, color: const Color(0xFF0d1117).withOpacity(0.7), size: 20),
                     ),
                   ),
                 ),
+
+                // ── أزرار سفلية محسّنة ──
                 Positioned(
                   bottom: 20,
                   left: 0,
@@ -490,23 +511,29 @@ class _MapScreenState extends State<MapScreen> {
                       _FAB(
                         icon: Icons.chat_bubble_rounded,
                         label: 'محادثة',
-                        color: const Color(0xFF0d1117),
+                        color: const Color(0xFF0d1117).withOpacity(0.88),
+                        borderColor: Colors.white.withOpacity(0.06),
+                        shadowColor: Colors.black.withOpacity(0.25),
                         onTap: () => Navigator.push(context,
                             MaterialPageRoute(builder: (_) => const ChatScreen())),
                       ),
-                      const SizedBox(width: 12),
+                      const SizedBox(width: 10),
                       _FAB(
                         icon: Icons.radio,
                         label: 'لاسلكي',
-                        color: const Color(0xFF00D4AA),
+                        color: const Color(0xFF00D4AA).withOpacity(0.88),
+                        borderColor: const Color(0xFF00D4AA).withOpacity(0.3),
+                        shadowColor: const Color(0xFF00D4AA).withOpacity(0.25),
                         onTap: () => Navigator.push(context,
                             MaterialPageRoute(builder: (_) => const WalkieTalkieScreen())),
                       ),
-                      const SizedBox(width: 12),
+                      const SizedBox(width: 10),
                       _FAB(
                         icon: Icons.warning_amber_rounded,
                         label: 'تنبيه',
-                        color: const Color(0xFFE24B4A),
+                        color: const Color(0xFFE24B4A).withOpacity(0.88),
+                        borderColor: const Color(0xFFE24B4A).withOpacity(0.3),
+                        shadowColor: const Color(0xFFE24B4A).withOpacity(0.25),
                         onTap: () => Navigator.push(context,
                             MaterialPageRoute(builder: (_) => const AlertScreen())),
                       ),
@@ -526,29 +553,40 @@ class _FAB extends StatelessWidget {
   final IconData icon;
   final String label;
   final Color color;
+  final Color borderColor;
+  final Color shadowColor;
   final VoidCallback onTap;
-  const _FAB({required this.icon, required this.label, required this.color, required this.onTap});
+
+  const _FAB({
+    required this.icon,
+    required this.label,
+    required this.color,
+    required this.borderColor,
+    required this.shadowColor,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
         decoration: BoxDecoration(
           color: color,
           borderRadius: BorderRadius.circular(30),
-          boxShadow: [
-            BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 8),
-          ],
+          border: Border.all(color: borderColor),
+          boxShadow: [BoxShadow(color: shadowColor, blurRadius: 16)],
         ),
         child: Row(
           children: [
-            Icon(icon, color: Colors.white, size: 16),
+            Icon(icon, color: Colors.white.withOpacity(0.9), size: 16),
             const SizedBox(width: 6),
             Text(label,
-                style: const TextStyle(
-                    color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
+                style: TextStyle(
+                    color: Colors.white.withOpacity(0.9),
+                    fontWeight: FontWeight.w600,
+                    fontSize: 13)),
           ],
         ),
       ),
@@ -572,10 +610,7 @@ class _Tab extends StatelessWidget {
         border: Border.all(color: active ? color : Colors.transparent, width: 1.5),
       ),
       child: Text(label,
-          style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.bold,
-              color: active ? color : Colors.grey)),
+          style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: active ? color : Colors.grey)),
     );
   }
 }
@@ -590,13 +625,8 @@ class _TravelerListItem extends StatelessWidget {
   final VoidCallback onTap;
 
   const _TravelerListItem({
-    required this.data,
-    required this.type,
-    required this.dirLabel,
-    required this.markerColor,
-    required this.badgeColor,
-    required this.textColor,
-    required this.onTap,
+    required this.data, required this.type, required this.dirLabel,
+    required this.markerColor, required this.badgeColor, required this.textColor, required this.onTap,
   });
 
   @override
@@ -610,27 +640,19 @@ class _TravelerListItem extends StatelessWidget {
           color: Colors.white,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(color: Colors.grey.shade100),
-          boxShadow: [
-            BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 4)
-          ],
+          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 4)],
         ),
         child: Row(
           children: [
             Container(
-              width: 40,
-              height: 40,
+              width: 40, height: 40,
               decoration: BoxDecoration(
-                color: markerColor,
+                color: markerColor.withOpacity(0.85),
                 shape: BoxShape.circle,
                 border: Border.all(color: Colors.white, width: 2),
               ),
-              child: Center(
-                child: Text(
-                  data['avatar'] ?? '؟',
-                  style: const TextStyle(
-                      color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
-                ),
-              ),
+              child: Center(child: Text(data['avatar'] ?? '؟',
+                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14))),
             ),
             const SizedBox(width: 10),
             Expanded(
@@ -642,13 +664,9 @@ class _TravelerListItem extends StatelessWidget {
                   const SizedBox(height: 3),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: badgeColor,
-                      borderRadius: BorderRadius.circular(6),
-                    ),
+                    decoration: BoxDecoration(color: badgeColor, borderRadius: BorderRadius.circular(6)),
                     child: Text(dirLabel,
-                        style: TextStyle(
-                            fontSize: 10, fontWeight: FontWeight.bold, color: textColor)),
+                        style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: textColor)),
                   ),
                 ],
               ),
@@ -672,14 +690,9 @@ class _TravelerCard extends StatelessWidget {
   final VoidCallback onWalkie;
 
   const _TravelerCard({
-    required this.data,
-    required this.type,
-    required this.directionLabel,
-    required this.markerColor,
-    required this.badgeColor,
-    required this.textColor,
-    required this.onChat,
-    required this.onWalkie,
+    required this.data, required this.type, required this.directionLabel,
+    required this.markerColor, required this.badgeColor, required this.textColor,
+    required this.onChat, required this.onWalkie,
   });
 
   @override
@@ -688,10 +701,7 @@ class _TravelerCard extends StatelessWidget {
       textDirection: TextDirection.rtl,
       child: Container(
         margin: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-        ),
+        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20)),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -704,56 +714,37 @@ class _TravelerCard extends StatelessWidget {
               child: Row(
                 children: [
                   Container(
-                    width: 52,
-                    height: 52,
+                    width: 52, height: 52,
                     decoration: BoxDecoration(
-                      color: markerColor,
+                      color: markerColor.withOpacity(0.85),
                       shape: BoxShape.circle,
                       border: Border.all(color: Colors.white.withOpacity(0.3), width: 2),
                     ),
-                    child: Center(
-                      child: Text(
-                        data['avatar'] ?? '؟',
-                        style: const TextStyle(
-                            color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
-                      ),
-                    ),
+                    child: Center(child: Text(data['avatar'] ?? '؟',
+                        style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold))),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          data['name'] ?? 'مسافر',
-                          style: const TextStyle(
-                              color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
-                        ),
+                        Text(data['name'] ?? 'مسافر',
+                            style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
                         const SizedBox(height: 4),
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                          decoration: BoxDecoration(
-                            color: badgeColor,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(
-                            directionLabel,
-                            style: TextStyle(
-                                fontSize: 11, fontWeight: FontWeight.bold, color: textColor),
-                          ),
+                          decoration: BoxDecoration(color: badgeColor, borderRadius: BorderRadius.circular(8)),
+                          child: Text(directionLabel,
+                              style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: textColor)),
                         ),
                       ],
                     ),
                   ),
-                  Column(
-                    children: [
-                      const Text('⭐', style: TextStyle(fontSize: 18)),
-                      Text(
-                        '${data['rating'] ?? 5}.0',
-                        style: const TextStyle(color: Colors.white60, fontSize: 11),
-                      ),
-                    ],
-                  ),
+                  Column(children: [
+                    const Text('⭐', style: TextStyle(fontSize: 18)),
+                    Text('${data['rating'] ?? 5}.0',
+                        style: const TextStyle(color: Colors.white60, fontSize: 11)),
+                  ]),
                 ],
               ),
             ),
@@ -761,69 +752,53 @@ class _TravelerCard extends StatelessWidget {
               padding: const EdgeInsets.all(14),
               child: Column(
                 children: [
-                  Row(
-                    children: [
-                      _InfoChip(label: 'السيارة', value: data['car'] ?? 'غير محدد'),
-                      const SizedBox(width: 8),
-                      _InfoChip(label: 'اللون', value: data['carColor'] ?? 'غير محدد'),
-                      const SizedBox(width: 8),
-                      _InfoChip(label: 'اللوحة', value: data['plate'] ?? '---'),
-                    ],
-                  ),
+                  Row(children: [
+                    _InfoChip(label: 'السيارة', value: data['car'] ?? 'غير محدد'),
+                    const SizedBox(width: 8),
+                    _InfoChip(label: 'اللون', value: data['carColor'] ?? 'غير محدد'),
+                    const SizedBox(width: 8),
+                    _InfoChip(label: 'اللوحة', value: data['plate'] ?? '---'),
+                  ]),
                   const SizedBox(height: 14),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: onChat,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF0d1117),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: const Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(Icons.chat_bubble_rounded, color: Colors.white, size: 16),
-                                SizedBox(width: 6),
-                                Text('محادثة نصية',
-                                    style: TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 12)),
-                              ],
-                            ),
+                  Row(children: [
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: onChat,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF0d1117).withOpacity(0.88),
+                            borderRadius: BorderRadius.circular(12),
                           ),
+                          child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                            Icon(Icons.chat_bubble_rounded, color: Colors.white.withOpacity(0.9), size: 16),
+                            const SizedBox(width: 6),
+                            Text('محادثة نصية',
+                                style: TextStyle(color: Colors.white.withOpacity(0.9), fontWeight: FontWeight.bold, fontSize: 12)),
+                          ]),
                         ),
                       ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: onWalkie,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF00D4AA),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: const Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(Icons.mic, color: Colors.white, size: 16),
-                                SizedBox(width: 6),
-                                Text('لاسلكي',
-                                    style: TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 12)),
-                              ],
-                            ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: onWalkie,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF00D4AA).withOpacity(0.88),
+                            borderRadius: BorderRadius.circular(12),
                           ),
+                          child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                            Icon(Icons.mic, color: Colors.white.withOpacity(0.9), size: 16),
+                            const SizedBox(width: 6),
+                            Text('لاسلكي',
+                                style: TextStyle(color: Colors.white.withOpacity(0.9), fontWeight: FontWeight.bold, fontSize: 12)),
+                          ]),
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ]),
                   const SizedBox(height: 8),
                   GestureDetector(
                     onTap: () => Navigator.pop(context),
@@ -835,18 +810,12 @@ class _TravelerCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(color: Colors.red.shade100),
                       ),
-                      child: const Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.flag_outlined, color: Color(0xFFE24B4A), size: 14),
-                          SizedBox(width: 6),
-                          Text('إبلاغ عن هذا المستخدم',
-                              style: TextStyle(
-                                  color: Color(0xFFE24B4A),
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.bold)),
-                        ],
-                      ),
+                      child: const Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                        Icon(Icons.flag_outlined, color: Color(0xFFE24B4A), size: 14),
+                        SizedBox(width: 6),
+                        Text('إبلاغ عن هذا المستخدم',
+                            style: TextStyle(color: Color(0xFFE24B4A), fontSize: 11, fontWeight: FontWeight.bold)),
+                      ]),
                     ),
                   ),
                 ],
@@ -879,8 +848,7 @@ class _InfoChip extends StatelessWidget {
           children: [
             Text(label, style: const TextStyle(fontSize: 9, color: Colors.grey)),
             const SizedBox(height: 2),
-            Text(value,
-                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+            Text(value, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
           ],
         ),
       ),
