@@ -23,7 +23,7 @@ class RafeeqApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF00D4AA)),
         useMaterial3: true,
       ),
-      home: const MapScreen(),
+      home: MapScreen(),
     );
   }
 }

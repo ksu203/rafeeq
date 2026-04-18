@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -7,6 +7,7 @@ import 'weather_service.dart';
 import 'firestore_service.dart';
 import 'chat_screen.dart';
 import 'alert_screen.dart';
+import 'walkie_talkie_screen.dart';
 
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
@@ -31,8 +32,6 @@ class _MapScreenState extends State<MapScreen> {
   bool _isTraveling = false;
   bool _loadingWeather = true;
   String? _myDocId;
-
-  // اتجاه سفري: true = نحو جدة، false = نحو الرياض
   final bool _myDirection = true;
 
   @override
@@ -77,7 +76,6 @@ class _MapScreenState extends State<MapScreen> {
     }
   }
 
-  // تحديد نوع المسافر بالنسبة لي
   String _getTravelerType(Map<String, dynamic> data) {
     final lat = double.tryParse(data['lat'].toString()) ?? 0;
     final direction = data['direction'] ?? true;
@@ -141,6 +139,11 @@ class _MapScreenState extends State<MapScreen> {
           Navigator.push(context,
               MaterialPageRoute(builder: (_) => const ChatScreen()));
         },
+        onWalkie: () {
+          Navigator.pop(context);
+          Navigator.push(context,
+              MaterialPageRoute(builder: (_) => const WalkieTalkieScreen()));
+        },
       ),
     );
   }
@@ -153,13 +156,11 @@ class _MapScreenState extends State<MapScreen> {
       builder: (context) {
         final same = docs.where((d) {
           final data = d.data() as Map<String, dynamic>;
-          final t = _getTravelerType(data);
-          return t != 'opposite';
+          return _getTravelerType(data) != 'opposite';
         }).toList();
         final opposite = docs.where((d) {
           final data = d.data() as Map<String, dynamic>;
-          final t = _getTravelerType(data);
-          return t == 'opposite';
+          return _getTravelerType(data) == 'opposite';
         }).toList();
 
         return DraggableScrollableSheet(
@@ -182,7 +183,6 @@ class _MapScreenState extends State<MapScreen> {
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
-                // تابات
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Row(
@@ -322,7 +322,6 @@ class _MapScreenState extends State<MapScreen> {
                             ),
                           ),
                         ),
-                        // مؤشر الاتجاه
                         Positioned(
                           bottom: 0,
                           left: 0,
@@ -336,11 +335,7 @@ class _MapScreenState extends State<MapScreen> {
                                 borderRadius: BorderRadius.circular(4),
                               ),
                               child: Text(
-                                type == 'ahead'
-                                    ? '↑'
-                                    : type == 'behind'
-                                        ? '↑'
-                                        : '↓',
+                                type == 'ahead' ? '↑' : type == 'behind' ? '↑' : '↓',
                                 style: const TextStyle(
                                     color: Colors.white, fontSize: 8),
                               ),
@@ -366,15 +361,12 @@ class _MapScreenState extends State<MapScreen> {
                   ),
                   children: [
                     TileLayer(
-                      urlTemplate:
-                          'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                      urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                       userAgentPackageName: 'com.rafeeq.app',
                     ),
                     MarkerLayer(markers: markers),
                   ],
                 ),
-
-                // شريط علوي
                 Positioned(
                   top: 0,
                   left: 0,
@@ -399,41 +391,31 @@ class _MapScreenState extends State<MapScreen> {
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold)),
                               Text(
-                                _isTraveling
-                                    ? '🟢 أنت مسافر الآن · نحو جدة'
-                                    : 'طريق الرياض ← جدة',
-                                style: const TextStyle(
-                                    color: Colors.white60, fontSize: 10),
+                                _isTraveling ? '🟢 أنت مسافر الآن · نحو جدة' : 'طريق الرياض ← جدة',
+                                style: const TextStyle(color: Colors.white60, fontSize: 10),
                               ),
                             ],
                           ),
                         ),
                         if (!_loadingWeather) ...[
-                          Text(_weather['icon'],
-                              style: const TextStyle(fontSize: 16)),
+                          Text(_weather['icon'], style: const TextStyle(fontSize: 16)),
                           const SizedBox(width: 4),
                           Text('${_weather['temp']}°م',
-                              style: const TextStyle(
-                                  color: Colors.white, fontSize: 12)),
+                              style: const TextStyle(color: Colors.white, fontSize: 12)),
                           const SizedBox(width: 8),
                         ],
                         GestureDetector(
                           onTap: _toggleTravel,
                           child: Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 12, vertical: 6),
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                             decoration: BoxDecoration(
-                              color: _isTraveling
-                                  ? const Color(0xFFE24B4A)
-                                  : const Color(0xFF3ecf8e),
+                              color: _isTraveling ? const Color(0xFFE24B4A) : const Color(0xFF3ecf8e),
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Text(
                               _isTraveling ? 'إيقاف' : 'سافر الآن',
                               style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.bold),
+                                  color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
                             ),
                           ),
                         ),
@@ -441,16 +423,13 @@ class _MapScreenState extends State<MapScreen> {
                     ),
                   ),
                 ),
-
-                // عداد المسافرين — قابل للنقر
                 Positioned(
                   top: MediaQuery.of(context).padding.top + 68,
                   right: 12,
                   child: GestureDetector(
                     onTap: () => _showTravelersList(otherDocs),
                     child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 7),
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(20),
@@ -463,27 +442,22 @@ class _MapScreenState extends State<MapScreen> {
                       ),
                       child: Row(
                         children: [
-                          const Icon(Icons.people,
-                              size: 14, color: Color(0xFF0d1117)),
+                          const Icon(Icons.people, size: 14, color: Color(0xFF0d1117)),
                           const SizedBox(width: 4),
                           Text(
                             '${otherDocs.length} مسافر',
                             style: const TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF0d1117),
-                            ),
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF0d1117)),
                           ),
                           const SizedBox(width: 2),
-                          const Icon(Icons.keyboard_arrow_up,
-                              size: 14, color: Colors.grey),
+                          const Icon(Icons.keyboard_arrow_up, size: 14, color: Colors.grey),
                         ],
                       ),
                     ),
                   ),
                 ),
-
-                // زر التمركز
                 Positioned(
                   bottom: 90,
                   left: 12,
@@ -502,13 +476,10 @@ class _MapScreenState extends State<MapScreen> {
                           ),
                         ],
                       ),
-                      child: const Icon(Icons.my_location,
-                          color: Color(0xFF0d1117), size: 20),
+                      child: const Icon(Icons.my_location, color: Color(0xFF0d1117), size: 20),
                     ),
                   ),
                 ),
-
-                // أزرار سفلية
                 Positioned(
                   bottom: 20,
                   left: 0,
@@ -522,6 +493,14 @@ class _MapScreenState extends State<MapScreen> {
                         color: const Color(0xFF0d1117),
                         onTap: () => Navigator.push(context,
                             MaterialPageRoute(builder: (_) => const ChatScreen())),
+                      ),
+                      const SizedBox(width: 12),
+                      _FAB(
+                        icon: Icons.radio,
+                        label: 'لاسلكي',
+                        color: const Color(0xFF00D4AA),
+                        onTap: () => Navigator.push(context,
+                            MaterialPageRoute(builder: (_) => const WalkieTalkieScreen())),
                       ),
                       const SizedBox(width: 12),
                       _FAB(
@@ -569,9 +548,7 @@ class _FAB extends StatelessWidget {
             const SizedBox(width: 6),
             Text(label,
                 style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 13)),
+                    color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
           ],
         ),
       ),
@@ -592,8 +569,7 @@ class _Tab extends StatelessWidget {
       decoration: BoxDecoration(
         color: active ? color.withOpacity(0.1) : Colors.grey.shade100,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-            color: active ? color : Colors.transparent, width: 1.5),
+        border: Border.all(color: active ? color : Colors.transparent, width: 1.5),
       ),
       child: Text(label,
           style: TextStyle(
@@ -635,8 +611,7 @@ class _TravelerListItem extends StatelessWidget {
           borderRadius: BorderRadius.circular(14),
           border: Border.all(color: Colors.grey.shade100),
           boxShadow: [
-            BoxShadow(
-                color: Colors.black.withOpacity(0.04), blurRadius: 4)
+            BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 4)
           ],
         ),
         child: Row(
@@ -653,9 +628,7 @@ class _TravelerListItem extends StatelessWidget {
                 child: Text(
                   data['avatar'] ?? '؟',
                   style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14),
+                      color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
                 ),
               ),
             ),
@@ -665,31 +638,22 @@ class _TravelerListItem extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(data['name'] ?? 'مسافر',
-                      style: const TextStyle(
-                          fontWeight: FontWeight.bold, fontSize: 13)),
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
                   const SizedBox(height: 3),
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 6, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: badgeColor,
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: Text(dirLabel,
-                            style: TextStyle(
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold,
-                                color: textColor)),
-                      ),
-                    ],
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: badgeColor,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(dirLabel,
+                        style: TextStyle(
+                            fontSize: 10, fontWeight: FontWeight.bold, color: textColor)),
                   ),
                 ],
               ),
             ),
-            const Icon(Icons.arrow_forward_ios,
-                size: 12, color: Colors.grey),
+            const Icon(Icons.arrow_forward_ios, size: 12, color: Colors.grey),
           ],
         ),
       ),
@@ -705,6 +669,7 @@ class _TravelerCard extends StatelessWidget {
   final Color badgeColor;
   final Color textColor;
   final VoidCallback onChat;
+  final VoidCallback onWalkie;
 
   const _TravelerCard({
     required this.data,
@@ -714,6 +679,7 @@ class _TravelerCard extends StatelessWidget {
     required this.badgeColor,
     required this.textColor,
     required this.onChat,
+    required this.onWalkie,
   });
 
   @override
@@ -729,13 +695,11 @@ class _TravelerCard extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // هيدر
             Container(
               padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: const Color(0xFF0d1117),
-                borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(20)),
+              decoration: const BoxDecoration(
+                color: Color(0xFF0d1117),
+                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
               ),
               child: Row(
                 children: [
@@ -745,16 +709,13 @@ class _TravelerCard extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: markerColor,
                       shape: BoxShape.circle,
-                      border:
-                          Border.all(color: Colors.white.withOpacity(0.3), width: 2),
+                      border: Border.all(color: Colors.white.withOpacity(0.3), width: 2),
                     ),
                     child: Center(
                       child: Text(
                         data['avatar'] ?? '؟',
                         style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold),
+                            color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
                       ),
                     ),
                   ),
@@ -766,14 +727,11 @@ class _TravelerCard extends StatelessWidget {
                         Text(
                           data['name'] ?? 'مسافر',
                           style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold),
+                              color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(height: 4),
                         Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 3),
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                           decoration: BoxDecoration(
                             color: badgeColor,
                             borderRadius: BorderRadius.circular(8),
@@ -781,51 +739,38 @@ class _TravelerCard extends StatelessWidget {
                           child: Text(
                             directionLabel,
                             style: TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.bold,
-                                color: textColor),
+                                fontSize: 11, fontWeight: FontWeight.bold, color: textColor),
                           ),
                         ),
                       ],
                     ),
                   ),
-                  // تقييم
                   Column(
                     children: [
                       const Text('⭐', style: TextStyle(fontSize: 18)),
                       Text(
                         '${data['rating'] ?? 5}.0',
-                        style: const TextStyle(
-                            color: Colors.white60, fontSize: 11),
+                        style: const TextStyle(color: Colors.white60, fontSize: 11),
                       ),
                     ],
                   ),
                 ],
               ),
             ),
-
-            // معلومات السيارة
             Padding(
               padding: const EdgeInsets.all(14),
               child: Column(
                 children: [
                   Row(
                     children: [
-                      _InfoChip(
-                          label: 'السيارة',
-                          value: data['car'] ?? 'غير محدد'),
+                      _InfoChip(label: 'السيارة', value: data['car'] ?? 'غير محدد'),
                       const SizedBox(width: 8),
-                      _InfoChip(
-                          label: 'اللون',
-                          value: data['carColor'] ?? 'غير محدد'),
+                      _InfoChip(label: 'اللون', value: data['carColor'] ?? 'غير محدد'),
                       const SizedBox(width: 8),
-                      _InfoChip(
-                          label: 'اللوحة',
-                          value: data['plate'] ?? '---'),
+                      _InfoChip(label: 'اللوحة', value: data['plate'] ?? '---'),
                     ],
                   ),
                   const SizedBox(height: 14),
-                  // أزرار التواصل
                   Row(
                     children: [
                       Expanded(
@@ -840,8 +785,7 @@ class _TravelerCard extends StatelessWidget {
                             child: const Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(Icons.chat_bubble_rounded,
-                                    color: Colors.white, size: 16),
+                                Icon(Icons.chat_bubble_rounded, color: Colors.white, size: 16),
                                 SizedBox(width: 6),
                                 Text('محادثة نصية',
                                     style: TextStyle(
@@ -855,30 +799,32 @@ class _TravelerCard extends StatelessWidget {
                       ),
                       const SizedBox(width: 8),
                       Expanded(
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF3ecf8e),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: const Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(Icons.mic, color: Colors.white, size: 16),
-                              SizedBox(width: 6),
-                              Text('لاسلكي',
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 12)),
-                            ],
+                        child: GestureDetector(
+                          onTap: onWalkie,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF00D4AA),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: const Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.mic, color: Colors.white, size: 16),
+                                SizedBox(width: 6),
+                                Text('لاسلكي',
+                                    style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 12)),
+                              ],
+                            ),
                           ),
                         ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 8),
-                  // زر الإبلاغ
                   GestureDetector(
                     onTap: () => Navigator.pop(context),
                     child: Container(
@@ -892,8 +838,7 @@ class _TravelerCard extends StatelessWidget {
                       child: const Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.flag_outlined,
-                              color: Color(0xFFE24B4A), size: 14),
+                          Icon(Icons.flag_outlined, color: Color(0xFFE24B4A), size: 14),
                           SizedBox(width: 6),
                           Text('إبلاغ عن هذا المستخدم',
                               style: TextStyle(
@@ -932,13 +877,10 @@ class _InfoChip extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(label,
-                style:
-                    const TextStyle(fontSize: 9, color: Colors.grey)),
+            Text(label, style: const TextStyle(fontSize: 9, color: Colors.grey)),
             const SizedBox(height: 2),
             Text(value,
-                style: const TextStyle(
-                    fontSize: 11, fontWeight: FontWeight.bold)),
+                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
           ],
         ),
       ),
