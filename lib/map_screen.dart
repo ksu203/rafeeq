@@ -8,8 +8,7 @@ import 'chat_screen.dart';
 import 'alert_screen.dart';
 import 'walkie_talkie_screen.dart';
 
-const String mapboxToken = 'pk.eyJ1IjoiYWhtZWQyMDI2IiwiYSI6ImNtbzdyeG9hNzA4cDcycHFycWw3a3Zha24ifQ.xiMrgccMb2muHSnSTJR5qg';
-
+const String mapboxToken = 'YOUR_MAPBOX_TOKEN';
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
 
